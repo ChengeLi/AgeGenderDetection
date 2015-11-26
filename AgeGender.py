@@ -40,8 +40,8 @@ if __name__ == '__main__':
 	numSample      = data_face_stack.shape[0]
 	index_data     = range(numSample)
 	np.random.shuffle(index_data)
-	index_training = index_data[:2*numSample/3]
-	index_testing  = index_data[2*numSample/3:]
+	index_training = index_data[:1*numSample/4]
+	index_testing  = index_data[3*numSample/4:]
 	
 	feature_training = data_feature_stack[index_training,:]
 	sex_training     = data_sex_stack[index_training]
@@ -56,6 +56,7 @@ if __name__ == '__main__':
 	# clf        = grid_search.GridSearchCV(svr, parameters)
 	clf.fit(feature_training, sex_training)  
 	sex_test_result = clf.predict(feature_testing)
+	sex_train_result = clf.predict(feature_training)
 
 
 
