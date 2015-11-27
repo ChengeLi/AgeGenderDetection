@@ -1,9 +1,81 @@
 import os
+import pdb
 import numpy as np
-import cPickle as pickle
-import matplotlib.pyplot as plt
+
 import glob as glob
 from sklearn import svm
+from sklearn.svm import LinearSVC
+from sklearn import cross_validation
+from sklearn import grid_search
+from sklearn.preprocessing import StandardScaler
+from sklearn.multiclass import OneVsRestClassifier
+
+import cPickle as pickle
+import matplotlib.pyplot as plt
+
+
+
+def PCAembedding():
+	# project original data into lower dimensions
+	pass
+
+
+def preprocess(X,y,test_size):
+	print "preprocessing..."
+	# preprocessing and Cross Validation
+	X = StandardScaler().fit_transform(X)
+	X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=test_size)
+	return X_train,X_test,y_train,y_test
+
+def AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.5):
+	
+	AgeX_train,AgeX_test,AgeY_train,AgeY_test = preprocess(data_feature_stack,data_age_stack,test_size)
+	print "fitting Age Clssfifer..."
+	parameters = {C=1.0, class_weight=None, dual=True, fit_intercept=True,
+     intercept_scaling=1, loss='l2', multi_class='ovr', penalty='l2',
+     random_state=0, tol=0.0001, verbose=0}
+
+	clf = OneVsRestClassifier(LinearSVC(parameters)).fit(AgeX_train, AgeY_train)
+	pdb.set_trace()
+
+	# Age_test_result = clf.predict(AgeX_test)
+	# Age_train_result = clf.predict(AgeX_train)
+	print "predicting Age..."
+	Age_acc_test  = clf.score(AgeX_test, AgeY_test)
+	Age_acc_train = clf.score(AgeX_train, AgeY_train)
+	
+	return clf, Age_acc_test,Age_acc_train
+
+
+
+def GenderClassifier(data_feature_stack,data_gender_stack,test_size = 0.5):
+	genderX_train,genderX_test,genderY_train,genderY_test = preprocess(data_feature_stack,data_gender_stack,test_size)
+	# SVM
+	print "fitting gender Clssfifer..."
+	clf = svm.SVC(kernel = 'linear' )
+	parameters = {'kernel':['linear'], 'C':[1, 10, 100]}
+	cv_clf = grid_search.GridSearchCV(clf, parameters)
+	cv_clf.fit(genderX_train, genderY_train)
+	# np.mean(cross_validation.cross_val_score(cv_clf.fit(genderX_train).best_estimator_, genderX_train))
+	print CV_rfc.best_params_
+
+
+	pdb.set_trace()
+	clf.fit(genderX_train, genderY_train)  
+	print "predicting gender..."
+	gender_test_result  = clf.predict(genderX_test)
+	gender_train_result = clf.predict(genderX_train)
+	
+	gender_acc_test  = clf.score(genderX_test, genderY_test)
+	gender_acc_train = clf.score(genderX_train, genderY_train)
+
+
+	#cross validation
+	# scores = cross_validation.cross_val_score(clf, data_feature_stack, data_gender_stack, cv=5)
+
+	return clf, gender_acc_test,gender_acc_train
+
+
 
 
 if __name__ == '__main__':
@@ -13,31 +85,45 @@ if __name__ == '__main__':
 	data_face    = []
 	data_feature = []
 	data_age     = []
-	data_sex     = []
+	data_gender  = []
 	for ii in range(len(files)):
 		dataFromFile[ii] = pickle.load( open( files[ii], "rb" ) )
-		# data         = pickle.load( open( "../data/Fam2a_file", "rb" ) )
 		data = dataFromFile[ii]
 		data_face.append(np.array(data['face']))
 		data_feature.append(data['feature'])
 		data_age.append(data['age'])
-		data_sex.append(data['sex'])
+		data_gender.append(data['sex'])
 
 
 	data_face_stack    = np.array(data_face[0])
 	data_feature_stack = np.array(data_feature[0])
 	data_age_stack     = np.array(data_age[0])
-	data_sex_stack     = np.array(data_sex[0])
+	data_gender_stack  = np.array(data_gender[0])
 
 	for kk in range(len(files)-1):
 		data_face_stack    = np.concatenate((data_face_stack,np.array(data_face[kk+1])), axis=0)
 		data_feature_stack = np.concatenate((data_feature_stack,np.array(data_feature[kk+1])), axis=0)
 		data_age_stack     = np.concatenate((data_age_stack,np.array(data_age[kk+1])), axis=0)
-		data_sex_stack     = np.concatenate((data_sex_stack,np.array(data_sex[kk+1])), axis=0)
+		data_gender_stack  = np.concatenate((data_gender_stack,np.array(data_gender[kk+1])), axis=0)
+
+
+	
+	numSample = data_face_stack.shape[0]
+	
+
+	"""Gender Clssfifer"""
+	gender_clf, gender_acc_test,gender_acc_train = GenderClassifier(data_feature_stack,data_gender_stack,test_size = 0.5)
+	
+	# """Age Clssfifer"""
+	# Age_clf, Age_acc_test,Age_acc_train = AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.5)
 
 
 
-	numSample      = data_face_stack.shape[0]
+
+
+
+"""
+# random shuffle to get training and testing sets
 	index_data     = range(numSample)
 	np.random.shuffle(index_data)
 	index_training = index_data[:1*numSample/4]
@@ -48,15 +134,24 @@ if __name__ == '__main__':
 	
 	feature_testing  = data_feature_stack[index_testing,:]
 	sex_testing      = data_sex_stack[index_testing]
+"""
 
 
-	# SVM
-	clf        = svm.SVC(kernel = 'linear')
-	# parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10, 100]}
-	# clf        = grid_search.GridSearchCV(svr, parameters)
-	clf.fit(feature_training, sex_training)  
-	sex_test_result = clf.predict(feature_testing)
-	sex_train_result = clf.predict(feature_training)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
