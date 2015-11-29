@@ -31,11 +31,11 @@ def AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.5):
 	
 	AgeX_train,AgeX_test,AgeY_train,AgeY_test = preprocess(data_feature_stack,data_age_stack,test_size)
 	print "fitting Age Clssfifer..."
-	parameters = {C=1.0, class_weight=None, dual=True, fit_intercept=True,
-     intercept_scaling=1, loss='l2', multi_class='ovr', penalty='l2',
-     random_state=0, tol=0.0001, verbose=0}
+	# parameters = (C=1.0, class_weight=None, dual=True, fit_intercept=True,\
+	# intercept_scaling=1, loss='l2', multi_class='ovr', penalty='l2',\
+ #     random_state=0, tol=0.0001, verbose=0)
 
-	clf = OneVsRestClassifier(LinearSVC(parameters)).fit(AgeX_train, AgeY_train)
+	clf = OneVsRestClassifier(LinearSVC(C = 1)).fit(AgeX_train, AgeY_train)
 	pdb.set_trace()
 
 	# Age_test_result = clf.predict(AgeX_test)
@@ -53,15 +53,16 @@ def GenderClassifier(data_feature_stack,data_gender_stack,test_size = 0.5):
 	# SVM
 	print "fitting gender Clssfifer..."
 	clf = svm.SVC(kernel = 'linear' )
-	parameters = {'kernel':['linear'], 'C':[1, 10, 100]}
+	parameters = {'kernel':['linear'], 'C':[0.01,0.1,1]} #among 1,10,100, 1 is the best
 	cv_clf = grid_search.GridSearchCV(clf, parameters)
 	cv_clf.fit(genderX_train, genderY_train)
 	# np.mean(cross_validation.cross_val_score(cv_clf.fit(genderX_train).best_estimator_, genderX_train))
-	print CV_rfc.best_params_
+	print "cv_clf.best_params_: ",cv_clf.best_params_
 
 
 	pdb.set_trace()
-	clf.fit(genderX_train, genderY_train)  
+	clf = cv_clf
+	# clf.fit(genderX_train, genderY_train)  
 	print "predicting gender..."
 	gender_test_result  = clf.predict(genderX_test)
 	gender_train_result = clf.predict(genderX_train)
@@ -110,12 +111,12 @@ if __name__ == '__main__':
 	
 	numSample = data_face_stack.shape[0]
 	
-
+	test_size = 0.8
 	"""Gender Clssfifer"""
-	gender_clf, gender_acc_test,gender_acc_train = GenderClassifier(data_feature_stack,data_gender_stack,test_size = 0.5)
+	gender_clf, gender_acc_test,gender_acc_train = GenderClassifier(data_feature_stack,data_gender_stack,test_size)
 	
 	# """Age Clssfifer"""
-	# Age_clf, Age_acc_test,Age_acc_train = AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.5)
+	# Age_clf, Age_acc_test,Age_acc_train = AgeClassifier(data_feature_stack,data_age_stack,test_size)
 
 
 
