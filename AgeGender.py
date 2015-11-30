@@ -64,6 +64,9 @@ def GenderClassifier(data_feature_stack,data_gender_stack,test_size = 0.5,search
 
 
 def AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.5):
+	Age_range = np.unique(data_age_stack)
+	# 923,  1529,   856,   1617,    13836,      6260,     1198
+
 	AgeX_train,AgeX_test,AgeY_train,AgeY_test = preprocess(data_feature_stack,data_age_stack,test_size)
 	print "fitting Age Clssfifer..."
 	# parameters = (C=1.0, class_weight=None, dual=True, fit_intercept=True,\
@@ -72,11 +75,22 @@ def AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.5):
 
 	clf = OneVsRestClassifier(LinearSVC(C = 0.001)).fit(AgeX_train, AgeY_train)
 
-	# Age_test_result = clf.predict(AgeX_test)
-	# Age_train_result = clf.predict(AgeX_train)
+
 	print "predicting Age..."
-	Age_acc_test  = clf.score(AgeX_test, AgeY_test)
-	Age_acc_train = clf.score(AgeX_train, AgeY_train)
+	Age_test_result  = clf.predict(AgeX_test)
+	Age_train_result = clf.predict(AgeX_train)	
+
+	# Age_acc_test  = clf.score(AgeX_test, AgeY_test)
+	# Age_acc_train = clf.score(AgeX_train, AgeY_train)
+	Age_acc_test  = np.sum(Age_test_result == AgeY_test)
+	Age_acc_train = np.sum(Age_train_result == AgeY_train)
+
+	temp   = Age_test_result-AgeY_test
+	error  = np.sqrt(temp**2)
+	rmse   = np.mean(error)
+	error2 = np.sqrt(temp[temp!=0]**2)
+	rmse2  = np.mean(error2)
+
 
 	pdb.set_trace()
 	return clf, Age_acc_test,Age_acc_train
@@ -114,12 +128,12 @@ if __name__ == '__main__':
 	
 	numSample = data_face_stack.shape[0]
 	
+	# pdb.set_trace()
 	"""Gender Clssfifer"""
-	gender_clf, gender_acc_test,gender_acc_train = GenderClassifier(data_feature_stack,data_gender_stack,test_size =0.6)
+	# gender_clf, gender_acc_test,gender_acc_train = GenderClassifier(data_feature_stack,data_gender_stack,test_size =0.6)
 	
 	# """Age Clssfifer"""
-	# Age_clf, Age_acc_test,Age_acc_train = AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.2)
-
+	Age_clf, Age_acc_test,Age_acc_train = AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.2)
 
 
 
