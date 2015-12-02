@@ -128,11 +128,10 @@ if __name__ == '__main__':
 	
 	numSample = data_face_stack.shape[0]
 	
-	# pdb.set_trace()
 	"""Gender Clssfifer"""
-	# gender_clf, gender_acc_test,gender_acc_train = GenderClassifier(data_feature_stack,data_gender_stack,test_size =0.6)
+	gender_clf, gender_acc_test,gender_acc_train = GenderClassifier(data_feature_stack,data_gender_stack,test_size =0.6)
 	
-	# """Age Clssfifer"""
+	"""Age Clssfifer"""
 	Age_clf, Age_acc_test,Age_acc_train = AgeClassifier(data_feature_stack,data_age_stack,test_size = 0.2)
 
 
